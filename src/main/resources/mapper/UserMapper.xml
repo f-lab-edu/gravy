@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.gravy.gravy.mapper.UserMapper">
+
+    <select id="getUserByEmail">
+        SELECT id, public_id, nickname, email, password, grade, created_at
+        FROM gravy_user
+        WHERE email = #{email}
+    </select>
+
+    <select id="existsAlreadyEmail">
+        SELECT EXISTS (SELECT 1
+                       FROM gravy_user
+                       WHERE email = #{email})
+    </select>
+
+    <insert id="userSignUp">
+        INSERT INTO gravy_user(public_id, nickname, email, password, grade)
+        VALUES (#{publicId}, #{nickname}, #{email}, #{password}, #{grade})
+    </insert>
+
+
+</mapper>
