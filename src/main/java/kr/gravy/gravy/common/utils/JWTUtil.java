@@ -54,5 +54,13 @@ public class JWTUtil {
                 .getExpiration();
     }
 
-
+    public UUID validateAndGetSubjectAsUUID(String token) {
+        String sub = Jwts.parser()
+                .verifyWith((SecretKey) key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
+        return UUID.fromString(sub);
+    }
 }

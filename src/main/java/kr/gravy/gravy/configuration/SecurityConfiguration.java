@@ -3,17 +3,26 @@ package kr.gravy.gravy.configuration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyUtils;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
@@ -22,36 +31,44 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // REST API 특성상 CSRF 비활성화
-                .csrf(csrf -> csrf.disable())
-                // 세션 사용 안 함 (JWT 등 토큰 기반 인증 대비)
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                // JWT 기반이므로 서버 세션을 만들지 않음
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // CSRF는 세션/폼 기반일 때 주로 사용되므로 비활성화
+                .csrf(AbstractHttpConfigurer::disable)
+                // 공개 API는 인증 없이 접근 허용, 그 외에는 BASIC 이상 권한 필요
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/email/verification-code/send",
+                                "/email/verification-code/verify",
+                                "/email/duplicate",
+                                "/user/signup",
+                                "/user/login",
+                                "/user/reissue/access-token"
+                        ).permitAll()
+                        .anyRequest().hasAnyRole("BASIC")
                 )
-                // 권한 설정
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers(PUBLIC_URI).permitAll()
-//                        .anyRequest().authenticated()
-//                )
-                // 폼 로그인, 기본 로그인 UI 비활성화
-                .httpBasic(Customizer.withDefaults()) // 필요 시 Basic Auth 사용
-                .formLogin(form -> form.disable())
+                // 폼 로그인/베이직 인증은 사용하지 않음
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 두어 토큰을 먼저 검증
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
     @Bean
+    public RoleHierarchy roleHierarchy() {
+        Map<String, List<String>> hierarchy = new HashMap<>();
+        hierarchy.put("ROLE_VIP", List.of("ROLE_TRUSTED"));
+        hierarchy.put("ROLE_TRUSTED", List.of("ROLE_VERIFIED"));
+        hierarchy.put("ROLE_VERIFIED", List.of("ROLE_BASIC"));
+
+        String hierarchyStr = RoleHierarchyUtils.roleHierarchyFromMap(hierarchy);
+        return RoleHierarchyImpl.fromHierarchy(hierarchyStr);
+    }
+
+    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-//    @Bean
-//    public WebSecurityCustomizer webSecurityCustomizer() {
-//        return (webSecurity) ->
-//                webSecurity.ignoring()
-//                        .requestMatchers(PUBLIC_URI);
-//    }
-
-
 }

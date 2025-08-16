@@ -16,6 +16,12 @@
                        WHERE email = #{email})
     </select>
 
+    <select id="getUserGradeByPublicId">
+        SELECT grade
+        FROM gravy_user
+        WHERE public_id = #{publicId}
+    </select>
+
     <insert id="userSignUp">
         INSERT INTO gravy_user(public_id, nickname, email, password, grade)
         VALUES (#{publicId}, #{nickname}, #{email}, #{password}, #{grade})
