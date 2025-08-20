@@ -1,4 +1,4 @@
-package kr.gravy.gravy.auth.enumeration;
+package kr.gravy.gravy.auth.model;
 
 public enum Grade {
     BASIC,

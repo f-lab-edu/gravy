@@ -8,7 +8,7 @@ import kr.gravy.gravy.email.configuration.MailConfiguration;
 import kr.gravy.gravy.email.dto.SendEmailVerificationCodeDto;
 import kr.gravy.gravy.email.dto.ValidateDuplicateEmailDto;
 import kr.gravy.gravy.email.dto.VerifyEmailVerificationCodeDto;
-import kr.gravy.gravy.email.enumeration.EmailVerificationStatus;
+import kr.gravy.gravy.email.model.EmailVerificationStatus;
 import kr.gravy.gravy.email.mapper.EmailVerificationMapper;
 import kr.gravy.gravy.email.util.VerificationCodeGenerator;
 import kr.gravy.gravy.email.vo.EmailVerificationVO;

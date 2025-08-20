@@ -2,7 +2,7 @@ package kr.gravy.gravy.auth.vo;
 
 import kr.gravy.gravy.common.exception.GravyException;
 import kr.gravy.gravy.common.exception.Status;
-import kr.gravy.gravy.auth.enumeration.Grade;
+import kr.gravy.gravy.auth.model.Grade;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

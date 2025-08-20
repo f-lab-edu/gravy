@@ -1,6 +1,6 @@
 package kr.gravy.gravy.auth.vo;
 
-import kr.gravy.gravy.email.enumeration.EmailVerificationStatus;
+import kr.gravy.gravy.email.model.EmailVerificationStatus;
 import lombok.Getter;
 
 @Getter

@@ -1,6 +1,6 @@
 package kr.gravy.gravy.auth.mapper;
 
-import kr.gravy.gravy.auth.enumeration.Grade;
+import kr.gravy.gravy.auth.model.Grade;
 import kr.gravy.gravy.auth.vo.UserVO;
 import org.apache.ibatis.annotations.Param;
 

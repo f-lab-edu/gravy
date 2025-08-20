@@ -1,7 +1,7 @@
 package kr.gravy.gravy.email.mapper;
 
 import kr.gravy.gravy.auth.vo.SignUpVO;
-import kr.gravy.gravy.email.enumeration.EmailVerificationStatus;
+import kr.gravy.gravy.email.model.EmailVerificationStatus;
 import kr.gravy.gravy.email.vo.EmailVerificationVO;
 import kr.gravy.gravy.email.vo.SendEmailVerificationCodeVO;
 import org.apache.ibatis.annotations.Param;
