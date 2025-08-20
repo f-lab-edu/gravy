@@ -1,5 +1,6 @@
 package kr.gravy.gravy.email.service;
 
+import kr.gravy.gravy.auth.mapper.UserMapper;
 import kr.gravy.gravy.common.exception.GravyException;
 import kr.gravy.gravy.common.exception.Status;
 import kr.gravy.gravy.common.utils.GeneratorUtil;
@@ -7,10 +8,9 @@ import kr.gravy.gravy.email.configuration.MailConfiguration;
 import kr.gravy.gravy.email.dto.SendEmailVerificationCodeDto;
 import kr.gravy.gravy.email.dto.ValidateDuplicateEmailDto;
 import kr.gravy.gravy.email.dto.VerifyEmailVerificationCodeDto;
-import kr.gravy.gravy.email.util.VerificationCodeGenerator;
 import kr.gravy.gravy.email.enumeration.EmailVerificationStatus;
 import kr.gravy.gravy.email.mapper.EmailVerificationMapper;
-import kr.gravy.gravy.auth.mapper.UserMapper;
+import kr.gravy.gravy.email.util.VerificationCodeGenerator;
 import kr.gravy.gravy.email.vo.EmailVerificationVO;
 import kr.gravy.gravy.email.vo.SendEmailVerificationCodeVO;
 import lombok.RequiredArgsConstructor;
@@ -43,13 +43,13 @@ public class EmailVerificationService {
                 .verificationCode(verificationCode)
                 .publicId(GeneratorUtil.generatePublicId())
                 .status(EmailVerificationStatus.SENT)
-                .email(request.getEmail())
+                .email(request.email())
                 .build();
 
         emailVerificationMapper.insertVerificationCode(verificationCodeVO);
 
         // TODO:: 하루에 메일 당 최대 10번 요청 가능, 한번 요청 후 30초 후 요청 가능
-        sendEmail(request.getEmail(), verificationCode);
+        sendEmail(request.email(), verificationCode);
     }
 
     private void sendEmail(final String userEmail, final String verificationCode) {
@@ -68,7 +68,7 @@ public class EmailVerificationService {
 
     @Transactional
     public VerifyEmailVerificationCodeDto.Response verifyEmailVerificationCode(final VerifyEmailVerificationCodeDto.Request request) {
-        EmailVerificationVO emailVerificationVO = emailVerificationMapper.getLatestVerification(request.getEmail())
+        EmailVerificationVO emailVerificationVO = emailVerificationMapper.getLatestVerification(request.email())
                 .orElseThrow(() -> new GravyException(Status.BAD_REQUEST));
 
         LocalDateTime createdAt = emailVerificationVO.getCreatedAt();
@@ -77,12 +77,10 @@ public class EmailVerificationService {
         UUID verificationPublicId = emailVerificationVO.getPublicId();
 
         validateExpiredVerificationCode(createdAt);
-        validateVerificationCode(request.getVerificationCode(), verificationCode);
+        validateVerificationCode(request.verificationCode(), verificationCode);
         emailVerificationMapper.updateVerificationStatus(emailVerificationId, EmailVerificationStatus.VERIFIED);
 
-        return VerifyEmailVerificationCodeDto.Response.builder()
-                .verificationPublicId(verificationPublicId)
-                .build();
+        return new VerifyEmailVerificationCodeDto.Response(verificationPublicId);
     }
 
     private void validateExpiredVerificationCode(final LocalDateTime createdAt) {
@@ -100,7 +98,7 @@ public class EmailVerificationService {
 
     @Transactional(readOnly = true)
     public void validateDuplicateEmail(final ValidateDuplicateEmailDto.Request request) {
-        boolean existsAlreadyEmail = userMapper.existsAlreadyEmail(request.getEmail());
+        boolean existsAlreadyEmail = userMapper.existsAlreadyEmail(request.email());
         if (existsAlreadyEmail) {
             throw new GravyException(Status.EXISTS_ALREADY_EMAIL);
         }

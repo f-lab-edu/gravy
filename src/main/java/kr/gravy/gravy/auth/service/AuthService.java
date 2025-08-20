@@ -1,20 +1,20 @@
 package kr.gravy.gravy.auth.service;
 
-import kr.gravy.gravy.common.exception.GravyException;
-import kr.gravy.gravy.common.exception.Status;
-import kr.gravy.gravy.common.utils.GeneratorUtil;
-import kr.gravy.gravy.auth.jwt.JWTUtil;
 import kr.gravy.gravy.auth.dto.ReIssueAccessTokenDto;
 import kr.gravy.gravy.auth.dto.UserLoginDto;
 import kr.gravy.gravy.auth.dto.UserSignUpDto;
-import kr.gravy.gravy.email.enumeration.EmailVerificationStatus;
 import kr.gravy.gravy.auth.enumeration.Grade;
-import kr.gravy.gravy.email.mapper.EmailVerificationMapper;
+import kr.gravy.gravy.auth.jwt.JWTUtil;
 import kr.gravy.gravy.auth.mapper.RefreshTokenMapper;
 import kr.gravy.gravy.auth.mapper.UserMapper;
-import kr.gravy.gravy.email.vo.RefreshTokenVO;
 import kr.gravy.gravy.auth.vo.SignUpVO;
 import kr.gravy.gravy.auth.vo.UserVO;
+import kr.gravy.gravy.common.exception.GravyException;
+import kr.gravy.gravy.common.exception.Status;
+import kr.gravy.gravy.common.utils.GeneratorUtil;
+import kr.gravy.gravy.email.enumeration.EmailVerificationStatus;
+import kr.gravy.gravy.email.mapper.EmailVerificationMapper;
+import kr.gravy.gravy.email.vo.RefreshTokenVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,15 +39,15 @@ public class AuthService {
 
     @Transactional
     public void signUp(final UserSignUpDto.Request request) {
-        SignUpVO signUpVO = emailVerificationMapper.getEmailAndVerificationStatusCode(request.getVerificationPublicId())
+        SignUpVO signUpVO = emailVerificationMapper.getEmailAndVerificationStatusCode(request.verificationPublicId())
                 .orElseThrow(() -> new GravyException(Status.BAD_REQUEST));
         validateEmailVerifiedStatus(signUpVO.getStatus());
         emailVerificationMapper.updateVerificationStatus(signUpVO.getId(), EmailVerificationStatus.CONSUMED);
 
         UserVO userVO = UserVO.builder()
                 .publicId(GeneratorUtil.generatePublicId())
-                .nickname(request.getNickname())
-                .password(passwordEncoder.encode(request.getPassword()))
+                .nickname(request.nickname())
+                .password(passwordEncoder.encode(request.password()))
                 .email(signUpVO.getEmail())
                 .grade(Grade.BASIC)
                 .build();
@@ -63,11 +63,10 @@ public class AuthService {
 
     @Transactional
     public UserLoginDto.Response userLogin(final UserLoginDto.Request request) {
-
-        UserVO user = userMapper.getUserByEmail(request.getEmail().trim())
+        UserVO user = userMapper.getUserByEmail(request.email().trim())
                 .orElseThrow(() -> new GravyException(Status.USER_NOT_FOUND));
 
-        user.validatePassword(passwordEncoder, request.getPassword());
+        user.validatePassword(passwordEncoder, request.password());
 
         UUID userPublicId = user.getPublicId();
         String accessToken = jwtUtil.createAccessToken(userPublicId);
@@ -82,10 +81,7 @@ public class AuthService {
 
         refreshTokenMapper.insertRefreshToken(refreshTokenVO);
 
-        return UserLoginDto.Response.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        return new UserLoginDto.Response(accessToken, refreshToken);
     }
 
     @Transactional
@@ -107,10 +103,7 @@ public class AuthService {
                 .build();
         refreshTokenMapper.insertRefreshToken(refreshTokenVO);
 
-        return ReIssueAccessTokenDto.Response.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        return new ReIssueAccessTokenDto.Response(accessToken, refreshToken);
     }
 
     private void validateExpiredRefreshToken(String requestedRefreshToken) {
