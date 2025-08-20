@@ -2,9 +2,9 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="kr.gravy.gravy.mapper.EmailVerificationMapper">
+<mapper namespace="kr.gravy.gravy.email.mapper.EmailVerificationMapper">
 
-    <resultMap id="EmailVerificationMap" type="kr.gravy.gravy.vo.EmailVerificationVO">
+    <resultMap id="EmailVerificationMap" type="kr.gravy.gravy.email.vo.EmailVerificationVO">
         <id property="id" column="id"/>
         <result property="publicId" column="public_id"/>
         <result property="verificationCode" column="verification_code"/>
