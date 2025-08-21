@@ -20,7 +20,7 @@ public class MailConfiguration {
     private String password;
 
     @Bean
-    public JavaMailSender setJavaMailSender() {
+    public JavaMailSender javaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.gmail.com");
         mailSender.setPort(587);
