@@ -1,6 +1,6 @@
 package kr.gravy.gravy.auth.service;
 
-import kr.gravy.gravy.auth.dto.ReIssueAccessTokenDto;
+import kr.gravy.gravy.auth.dto.ReissueAccessTokenDto;
 import kr.gravy.gravy.auth.dto.UserLoginDto;
 import kr.gravy.gravy.auth.dto.UserSignUpDto;
 import kr.gravy.gravy.auth.model.Grade;
@@ -85,7 +85,7 @@ public class AuthService {
     }
 
     @Transactional
-    public ReIssueAccessTokenDto.Response reIssueAccessToken(final String requestedRefreshToken) {
+    public ReissueAccessTokenDto.Response reissueAccessToken(final String requestedRefreshToken) {
         validateExpiredRefreshToken(requestedRefreshToken);
 
         UserVO user = refreshTokenMapper.getUserByRefreshToken(requestedRefreshToken)
@@ -103,7 +103,7 @@ public class AuthService {
                 .build();
         refreshTokenMapper.insertRefreshToken(refreshTokenVO);
 
-        return new ReIssueAccessTokenDto.Response(accessToken, refreshToken);
+        return new ReissueAccessTokenDto.Response(accessToken, refreshToken);
     }
 
     private void validateExpiredRefreshToken(String requestedRefreshToken) {

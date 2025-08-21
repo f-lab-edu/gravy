@@ -1,7 +1,7 @@
 package kr.gravy.gravy.auth.controller;
 
 import jakarta.validation.Valid;
-import kr.gravy.gravy.auth.dto.ReIssueAccessTokenDto;
+import kr.gravy.gravy.auth.dto.ReissueAccessTokenDto;
 import kr.gravy.gravy.auth.dto.UserLoginDto;
 import kr.gravy.gravy.auth.dto.UserSignUpDto;
 import kr.gravy.gravy.auth.service.AuthService;
@@ -19,20 +19,20 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/user/signup")
+    @PostMapping("/api/v1/users")
     public ResponseEntity<Void> signUp(@Valid @RequestBody UserSignUpDto.Request request) {
         authService.signUp(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/user/login")
+    @PostMapping("/api/v1/auth/tokens")
     public ResponseEntity<UserLoginDto.Response> userLogin(@Valid @RequestBody UserLoginDto.Request request) {
         return ResponseEntity.status(HttpStatus.OK).body(authService.userLogin(request));
     }
 
-    @PostMapping("/user/reissue/access-token")
-    public ResponseEntity<ReIssueAccessTokenDto.Response> reIssueAccessToken(
+    @PostMapping("/api/v1/auth/tokens/reissue")
+    public ResponseEntity<ReissueAccessTokenDto.Response> reissueAccessToken(
             @CookieValue(name = "refresh_token") String refreshToken) {
-        return ResponseEntity.status(HttpStatus.OK).body(authService.reIssueAccessToken(refreshToken));
+        return ResponseEntity.status(HttpStatus.OK).body(authService.reissueAccessToken(refreshToken));
     }
 }

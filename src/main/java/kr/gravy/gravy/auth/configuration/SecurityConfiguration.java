@@ -49,12 +49,12 @@ public class SecurityConfiguration {
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/", "/ping", "/error", "/favicon.ico").permitAll()
                         .requestMatchers(
-                                "/email/verification-code/send",
-                                "/email/verification-code/verify",
-                                "/email/duplicate",
-                                "/user/signup",
-                                "/user/login",
-                                "/user/reissue/access-token"
+                                "/api/v1/email-verifications",
+                                "/api/v1/email-verifications/status",
+                                "/api/v1/users/email/*/availability",
+                                "/api/v1/users",
+                                "/api/v1/auth/tokens",
+                                "/api/v1/auth/tokens/reissue"
                         ).permitAll()
                         .anyRequest().hasAnyRole("BASIC")
                 )

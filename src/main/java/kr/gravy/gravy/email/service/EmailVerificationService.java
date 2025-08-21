@@ -6,7 +6,6 @@ import kr.gravy.gravy.common.exception.Status;
 import kr.gravy.gravy.common.utils.GeneratorUtil;
 import kr.gravy.gravy.email.configuration.MailConfiguration;
 import kr.gravy.gravy.email.dto.SendEmailVerificationCodeDto;
-import kr.gravy.gravy.email.dto.ValidateDuplicateEmailDto;
 import kr.gravy.gravy.email.dto.VerifyEmailVerificationCodeDto;
 import kr.gravy.gravy.email.model.EmailVerificationStatus;
 import kr.gravy.gravy.email.mapper.EmailVerificationMapper;
@@ -97,8 +96,8 @@ public class EmailVerificationService {
     }
 
     @Transactional(readOnly = true)
-    public void validateDuplicateEmail(final ValidateDuplicateEmailDto.Request request) {
-        boolean existsAlreadyEmail = userMapper.existsAlreadyEmail(request.email());
+    public void validateDuplicateEmail(final String email) {
+        boolean existsAlreadyEmail = userMapper.existsAlreadyEmail(email);
         if (existsAlreadyEmail) {
             throw new GravyException(Status.EXISTS_ALREADY_EMAIL);
         }
