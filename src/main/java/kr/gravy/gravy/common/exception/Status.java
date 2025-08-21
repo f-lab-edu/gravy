@@ -18,7 +18,7 @@ public enum Status {
     VERIFICATION_CODE_MISMATCH(400, "VERIFY001", "인증번호가 일치하지 않습니다"),
     EMAIL_NOT_VERIFIED(400, "VERIFY002", "이메일 인증을 다시 진행해주세요."),
     EXPIRED_VERIFICATION_CODE(400, "VERIFY003", "이메일 인증이 만료된 코드입니다."),
-    EXISTS_ALREADY_EMAIL(400, "VERIFY003", "다른 이메일을 사용해주세요."),
+    EXISTS_ALREADY_EMAIL(400, "VERIFY004", "다른 이메일을 사용해주세요."),
 
     // === 사용자 관련 ===
     USER_NOT_FOUND(404, "USER001", "사용자를 찾을 수 없습니다");
