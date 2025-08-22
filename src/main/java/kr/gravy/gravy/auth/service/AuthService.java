@@ -3,24 +3,26 @@ package kr.gravy.gravy.auth.service;
 import kr.gravy.gravy.auth.dto.ReissueAccessTokenDto;
 import kr.gravy.gravy.auth.dto.UserLoginDto;
 import kr.gravy.gravy.auth.dto.UserSignUpDto;
-import kr.gravy.gravy.auth.model.Grade;
+import kr.gravy.gravy.auth.entity.RefreshToken;
+import kr.gravy.gravy.auth.entity.User;
 import kr.gravy.gravy.auth.jwt.JWTUtil;
 import kr.gravy.gravy.auth.mapper.RefreshTokenMapper;
 import kr.gravy.gravy.auth.mapper.UserMapper;
-import kr.gravy.gravy.auth.vo.SignUpVO;
-import kr.gravy.gravy.auth.vo.UserVO;
+import kr.gravy.gravy.auth.model.Grade;
 import kr.gravy.gravy.common.exception.GravyException;
 import kr.gravy.gravy.common.exception.Status;
+import kr.gravy.gravy.common.utils.DateTimeUtil;
 import kr.gravy.gravy.common.utils.GeneratorUtil;
-import kr.gravy.gravy.email.model.EmailVerificationStatus;
+import kr.gravy.gravy.email.entity.EmailVerification;
 import kr.gravy.gravy.email.mapper.EmailVerificationMapper;
-import kr.gravy.gravy.email.vo.RefreshTokenVO;
+import kr.gravy.gravy.email.model.EmailVerificationStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
@@ -39,20 +41,20 @@ public class AuthService {
 
     @Transactional
     public void signUp(final UserSignUpDto.Request request) {
-        SignUpVO signUpVO = emailVerificationMapper.getEmailAndVerificationStatusCode(request.verificationPublicId())
+        EmailVerification emailVerification = emailVerificationMapper.getEmailAndVerificationStatusCode(request.verificationPublicId())
                 .orElseThrow(() -> new GravyException(Status.BAD_REQUEST));
-        validateEmailVerifiedStatus(signUpVO.getStatus());
-        emailVerificationMapper.updateVerificationStatus(signUpVO.getId(), EmailVerificationStatus.CONSUMED);
+        validateEmailVerifiedStatus(emailVerification.getStatus());
+        emailVerificationMapper.updateVerificationStatus(emailVerification.getId(), EmailVerificationStatus.CONSUMED);
 
-        UserVO userVO = UserVO.builder()
+        User user = User.builder()
                 .publicId(GeneratorUtil.generatePublicId())
                 .nickname(request.nickname())
                 .password(passwordEncoder.encode(request.password()))
-                .email(signUpVO.getEmail())
+                .email(emailVerification.getEmail())
                 .grade(Grade.BASIC)
                 .build();
 
-        userMapper.userSignUp(userVO);
+        userMapper.userSignUp(user);
     }
 
     private void validateEmailVerifiedStatus(final EmailVerificationStatus verificationStatus) {
@@ -63,7 +65,7 @@ public class AuthService {
 
     @Transactional
     public UserLoginDto.Response userLogin(final UserLoginDto.Request request) {
-        UserVO user = userMapper.getUserByEmail(request.email().trim())
+        User user = userMapper.getUserByEmail(request.email().trim())
                 .orElseThrow(() -> new GravyException(Status.USER_NOT_FOUND));
 
         user.validatePassword(passwordEncoder, request.password());
@@ -73,13 +75,14 @@ public class AuthService {
         String refreshToken = jwtUtil.createRefreshToken(userPublicId);
 
         Date refreshTokenExpiredDate = jwtUtil.getExpiration(refreshToken);
-        RefreshTokenVO refreshTokenVO = RefreshTokenVO.builder()
+        LocalDateTime refreshTokenExpiredAt = DateTimeUtil.convertToLocalDateTime(refreshTokenExpiredDate);
+
+        RefreshToken newRefreshToken = RefreshToken.builder()
                 .userId(user.getId())
                 .token(refreshToken)
-                .expiredAt(refreshTokenExpiredDate)
+                .expiredAt(refreshTokenExpiredAt)
                 .build();
-
-        refreshTokenMapper.insertRefreshToken(refreshTokenVO);
+        refreshTokenMapper.insertRefreshToken(newRefreshToken);
 
         return new UserLoginDto.Response(accessToken, refreshToken);
     }
@@ -88,18 +91,18 @@ public class AuthService {
     public ReissueAccessTokenDto.Response reissueAccessToken(final String requestedRefreshToken) {
         validateExpiredRefreshToken(requestedRefreshToken);
 
-        UserVO user = refreshTokenMapper.getUserByRefreshToken(requestedRefreshToken)
+        User user = refreshTokenMapper.getUserByRefreshToken(requestedRefreshToken)
                 .orElseThrow(() -> new GravyException(Status.USER_NOT_FOUND));
 
         String accessToken = jwtUtil.createAccessToken(user.getPublicId());
         String refreshToken = jwtUtil.createRefreshToken(user.getPublicId());
 
         Date refreshTokenExpiredDate = jwtUtil.getExpiration(refreshToken);
-
-        RefreshTokenVO refreshTokenVO = RefreshTokenVO.builder()
+        LocalDateTime refreshTokenExpiredAt = DateTimeUtil.convertToLocalDateTime(refreshTokenExpiredDate);
+        RefreshToken refreshTokenVO = RefreshToken.builder()
                 .userId(user.getId())
                 .token(refreshToken)
-                .expiredAt(refreshTokenExpiredDate)
+                .expiredAt(refreshTokenExpiredAt)
                 .build();
         refreshTokenMapper.insertRefreshToken(refreshTokenVO);
 
@@ -107,11 +110,11 @@ public class AuthService {
     }
 
     private void validateExpiredRefreshToken(String requestedRefreshToken) {
-        Date refreshTokenExpiredAt = refreshTokenMapper.getRefreshTokenExpiredAt(requestedRefreshToken)
+        LocalDateTime refreshTokenExpiredAt = refreshTokenMapper.getRefreshTokenExpiredAt(requestedRefreshToken)
                 .orElseThrow(() -> new GravyException(Status.TOKEN_NOT_FOUND));
 
-        Date now = new Date();
-        if (refreshTokenExpiredAt.before(now)) {
+        LocalDateTime now = LocalDateTime.now();
+        if (refreshTokenExpiredAt.isBefore(now)) {
             throw new GravyException(Status.TOKEN_EXPIRED);
         }
     }

@@ -4,23 +4,26 @@
 
 <mapper namespace="kr.gravy.gravy.email.mapper.EmailVerificationMapper">
 
-    <resultMap id="EmailVerificationMap" type="kr.gravy.gravy.email.vo.EmailVerificationVO">
+    <resultMap id="EmailVerificationMap" type="kr.gravy.gravy.email.entity.EmailVerification">
         <id property="id" column="id"/>
         <result property="publicId" column="public_id"/>
         <result property="verificationCode" column="verification_code"/>
+        <result property="status" column="status"/>
+        <result property="email" column="email"/>
         <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
     </resultMap>
 
     <select id="getLatestVerification" resultMap="EmailVerificationMap">
-        SELECT id, public_id, verification_code, created_at
+        SELECT *
         FROM email_verification
         WHERE email = #{email}
           AND status = 'SENT'
         ORDER BY created_at DESC LIMIT 1
     </select>
 
-    <select id="getEmailAndVerificationStatusCode">
-        SELECT id, email, status
+    <select id="getEmailAndVerificationStatusCode" resultMap="EmailVerificationMap">
+        SELECT *
         FROM email_verification
         WHERE public_id = #{emailVerificationPublicId}
     </select>

@@ -10,9 +10,9 @@
 
 
     <select id="getUserByRefreshToken">
-        SELECT g.id, g.public_id
+        SELECT u.*
         FROM refresh_token AS r
-                 JOIN gravy_user AS g ON g.id = r.user_id
+                 JOIN gravy_user AS u ON u.id = r.user_id
         WHERE r.token = #{refreshToken}
     </select>
 

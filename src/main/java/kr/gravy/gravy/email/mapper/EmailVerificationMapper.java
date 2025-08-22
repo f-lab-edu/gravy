@@ -1,9 +1,7 @@
 package kr.gravy.gravy.email.mapper;
 
-import kr.gravy.gravy.auth.vo.SignUpVO;
+import kr.gravy.gravy.email.entity.EmailVerification;
 import kr.gravy.gravy.email.model.EmailVerificationStatus;
-import kr.gravy.gravy.email.vo.EmailVerificationVO;
-import kr.gravy.gravy.email.vo.SendEmailVerificationCodeVO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Optional;
@@ -11,12 +9,12 @@ import java.util.UUID;
 
 public interface EmailVerificationMapper {
 
-    void insertVerificationCode(SendEmailVerificationCodeVO sendEmailVerificationCodeVO);
+    void insertVerificationCode(EmailVerification emailVerification);
 
-    Optional<EmailVerificationVO> getLatestVerification(@Param("email") String email);
+    Optional<EmailVerification> getLatestVerification(@Param("email") String email);
 
     void updateVerificationStatus(@Param("emailVerificationId") Long emailVerificationId,
                                   @Param("emailVerificationStatus") EmailVerificationStatus emailVerificationStatus);
 
-    Optional<SignUpVO> getEmailAndVerificationStatusCode(@Param("emailVerificationPublicId") UUID emailVerificationPublicId);
+    Optional<EmailVerification> getEmailAndVerificationStatusCode(@Param("emailVerificationPublicId") UUID emailVerificationPublicId);
 }

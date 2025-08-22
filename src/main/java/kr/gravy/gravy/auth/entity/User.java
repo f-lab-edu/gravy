@@ -1,9 +1,10 @@
-package kr.gravy.gravy.auth.vo;
+package kr.gravy.gravy.auth.entity;
 
+import kr.gravy.gravy.auth.model.Grade;
 import kr.gravy.gravy.common.exception.GravyException;
 import kr.gravy.gravy.common.exception.Status;
-import kr.gravy.gravy.auth.model.Grade;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
@@ -11,9 +12,7 @@ import java.util.UUID;
 
 @Getter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class UserVO {
+public class User {
     private Long id;
     private UUID publicId;
     private String nickname;

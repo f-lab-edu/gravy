@@ -1,17 +1,17 @@
 package kr.gravy.gravy.auth.mapper;
 
-import kr.gravy.gravy.auth.vo.UserVO;
-import kr.gravy.gravy.email.vo.RefreshTokenVO;
+import kr.gravy.gravy.auth.entity.RefreshToken;
+import kr.gravy.gravy.auth.entity.User;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface RefreshTokenMapper {
-    void insertRefreshToken(RefreshTokenVO refreshTokenVO);
+    void insertRefreshToken(RefreshToken refreshToken);
 
-    Optional<Date> getRefreshTokenExpiredAt(@Param("refreshToken") String refreshToken);
+    Optional<LocalDateTime> getRefreshTokenExpiredAt(@Param("refreshToken") String refreshToken);
 
-    Optional<UserVO> getUserByRefreshToken(@Param("refreshToken") String refreshToken);
+    Optional<User> getUserByRefreshToken(@Param("refreshToken") String refreshToken);
 
 }
