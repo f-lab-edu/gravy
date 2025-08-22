@@ -46,13 +46,14 @@ public class AuthService {
         validateEmailVerifiedStatus(emailVerification.getStatus());
         emailVerificationMapper.updateVerificationStatus(emailVerification.getId(), EmailVerificationStatus.CONSUMED);
 
-        User user = User.builder()
-                .publicId(GeneratorUtil.generatePublicId())
-                .nickname(request.nickname())
-                .password(passwordEncoder.encode(request.password()))
-                .email(emailVerification.getEmail())
-                .grade(Grade.BASIC)
-                .build();
+        User user = User.createForSignUp(
+                GeneratorUtil.generatePublicId(),
+                request.nickname(),
+                emailVerification.getEmail(),
+                passwordEncoder.encode(request.password()),
+                Grade.BASIC,
+                LocalDateTime.now()
+        );
 
         userMapper.userSignUp(user);
     }
@@ -74,14 +75,17 @@ public class AuthService {
         String accessToken = jwtUtil.createAccessToken(userPublicId);
         String refreshToken = jwtUtil.createRefreshToken(userPublicId);
 
+        final LocalDateTime now = LocalDateTime.now();
         Date refreshTokenExpiredDate = jwtUtil.getExpiration(refreshToken);
         LocalDateTime refreshTokenExpiredAt = DateTimeUtil.convertToLocalDateTime(refreshTokenExpiredDate);
 
-        RefreshToken newRefreshToken = RefreshToken.builder()
-                .userId(user.getId())
-                .token(refreshToken)
-                .expiredAt(refreshTokenExpiredAt)
-                .build();
+        RefreshToken newRefreshToken = RefreshToken.create(
+                user.getId(),
+                refreshToken,
+                refreshTokenExpiredAt,
+                now,
+                now
+        );
         refreshTokenMapper.insertRefreshToken(newRefreshToken);
 
         return new UserLoginDto.Response(accessToken, refreshToken);
@@ -94,16 +98,19 @@ public class AuthService {
         User user = refreshTokenMapper.getUserByRefreshToken(requestedRefreshToken)
                 .orElseThrow(() -> new GravyException(Status.USER_NOT_FOUND));
 
+        final LocalDateTime now = LocalDateTime.now();
         String accessToken = jwtUtil.createAccessToken(user.getPublicId());
         String refreshToken = jwtUtil.createRefreshToken(user.getPublicId());
 
         Date refreshTokenExpiredDate = jwtUtil.getExpiration(refreshToken);
         LocalDateTime refreshTokenExpiredAt = DateTimeUtil.convertToLocalDateTime(refreshTokenExpiredDate);
-        RefreshToken refreshTokenVO = RefreshToken.builder()
-                .userId(user.getId())
-                .token(refreshToken)
-                .expiredAt(refreshTokenExpiredAt)
-                .build();
+        RefreshToken refreshTokenVO = RefreshToken.create(
+                user.getId(),
+                refreshToken,
+                refreshTokenExpiredAt,
+                now,
+                now
+        );
         refreshTokenMapper.insertRefreshToken(refreshTokenVO);
 
         return new ReissueAccessTokenDto.Response(accessToken, refreshToken);
@@ -113,7 +120,7 @@ public class AuthService {
         LocalDateTime refreshTokenExpiredAt = refreshTokenMapper.getRefreshTokenExpiredAt(requestedRefreshToken)
                 .orElseThrow(() -> new GravyException(Status.TOKEN_NOT_FOUND));
 
-        LocalDateTime now = LocalDateTime.now();
+        final LocalDateTime now = LocalDateTime.now();
         if (refreshTokenExpiredAt.isBefore(now)) {
             throw new GravyException(Status.TOKEN_EXPIRED);
         }

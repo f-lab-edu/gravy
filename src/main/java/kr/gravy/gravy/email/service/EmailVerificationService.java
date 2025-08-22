@@ -36,13 +36,15 @@ public class EmailVerificationService {
     @Transactional
     public void sendEmailVerificationCode(final SendEmailVerificationCodeDto.Request request) {
         final String verificationCode = VerificationCodeGenerator.generateVerificationCode();
+        final LocalDateTime now = LocalDateTime.now();
 
-        EmailVerification emailVerification = EmailVerification.builder()
-                .verificationCode(verificationCode)
-                .publicId(GeneratorUtil.generatePublicId())
-                .status(EmailVerificationStatus.SENT)
-                .email(request.email())
-                .build();
+        EmailVerification emailVerification = EmailVerification.create(
+                GeneratorUtil.generatePublicId(),
+                verificationCode,
+                request.email(),
+                now,
+                now
+        );
 
         emailVerificationMapper.insertVerificationCode(emailVerification);
 
