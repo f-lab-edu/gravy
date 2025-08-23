@@ -33,6 +33,11 @@ public class MailConfiguration {
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
 
+        // 메일 서버 타임아웃 설정 (5초)
+        props.put("mail.smtp.connectiontimeout", "5000"); // 연결 타임아웃
+        props.put("mail.smtp.timeout", "5000");           // 읽기 타임아웃
+        props.put("mail.smtp.writetimeout", "5000");      // 쓰기 타임아웃
+
         return mailSender;
     }
 }

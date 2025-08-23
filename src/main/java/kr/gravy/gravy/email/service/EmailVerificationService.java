@@ -13,6 +13,7 @@ import kr.gravy.gravy.email.model.EmailVerificationStatus;
 import kr.gravy.gravy.email.util.VerificationCodeGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -53,16 +53,16 @@ public class EmailVerificationService {
     }
 
     private void sendEmail(final String userEmail, final String verificationCode) {
-        CompletableFuture.runAsync(() -> {
+        try {
             SimpleMailMessage mail = new SimpleMailMessage();
             mail.setTo(userEmail);
             mail.setSubject("Gravy 인증 코드");
             mail.setText(verificationCode);
             javaMailSender.send(mail);
-        }).exceptionally(e -> {
+        } catch (MailException e) {
             log.error("이메일 발송 실패. 수신자: {}, 원인: {}", userEmail, e.getMessage(), e);
-            throw new GravyException("이메일 발송에 실패하였습니다.");
-        });
+            throw new GravyException(Status.FAIL_SEND_MAIL);
+        }
     }
 
 
