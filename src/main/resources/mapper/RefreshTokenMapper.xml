@@ -2,23 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="kr.gravy.gravy.auth.mapper.RefreshTokenMapper">
 
-    <select id="getRefreshTokenExpiredAt">
+    <resultMap id="RefreshTokenMap" type="kr.gravy.gravy.auth.entity.RefreshToken">
+        <id property="id" column="id" javaType="java.lang.Long"/>
+        <result property="userId" column="user_id" javaType="java.lang.Long"/>
+        <result property="token" column="token" javaType="java.lang.String"/>
+        <result property="expiredAt" column="expired_at" javaType="java.time.LocalDateTime"/>
+        <result property="createdAt" column="created_at" javaType="java.time.LocalDateTime"/>
+        <result property="updatedAt" column="updated_at" javaType="java.time.LocalDateTime"/>
+    </resultMap>
+
+    <select id="getRefreshTokenExpiredAt" resultType="java.time.LocalDateTime">
         SELECT expired_at
         FROM refresh_token
         WHERE token = #{refreshToken}
     </select>
 
-
-    <select id="getUserByRefreshToken">
-        SELECT u.*
-        FROM refresh_token AS r
-                 JOIN gravy_user AS u ON u.id = r.user_id
-        WHERE r.token = #{refreshToken}
-    </select>
-
     <insert id="insertRefreshToken">
-        INSERT INTO refresh_token(user_id, token, expired_at)
-        VALUES (#{userId}, #{token}, #{expiredAt})
+        INSERT INTO refresh_token(user_id, token, expired_at, created_at, updated_at)
+        VALUES (#{userId}, #{token}, #{expiredAt}, #{createdAt}, #{updatedAt})
     </insert>
 
 </mapper>

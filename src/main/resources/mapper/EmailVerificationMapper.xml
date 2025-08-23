@@ -5,13 +5,14 @@
 <mapper namespace="kr.gravy.gravy.email.mapper.EmailVerificationMapper">
 
     <resultMap id="EmailVerificationMap" type="kr.gravy.gravy.email.entity.EmailVerification">
-        <id property="id" column="id"/>
-        <result property="publicId" column="public_id"/>
-        <result property="verificationCode" column="verification_code"/>
-        <result property="status" column="status"/>
-        <result property="email" column="email"/>
-        <result property="createdAt" column="created_at"/>
-        <result property="updatedAt" column="updated_at"/>
+        <id property="id" column="id" javaType="java.lang.Long"/>
+        <result property="publicId" column="public_id" javaType="java.util.UUID"
+                typeHandler="kr.gravy.gravy.infrastructure.persistence.mybatis.UUIDTypeHandler"/>
+        <result property="verificationCode" column="verification_code" javaType="java.lang.String"/>
+        <result property="status" column="status" javaType="kr.gravy.gravy.email.model.EmailVerificationStatus"/>
+        <result property="email" column="email" javaType="java.lang.String"/>
+        <result property="createdAt" column="created_at" javaType="java.time.LocalDateTime"/>
+        <result property="updatedAt" column="updated_at" javaType="java.time.LocalDateTime"/>
     </resultMap>
 
     <select id="getLatestVerification" resultMap="EmailVerificationMap">

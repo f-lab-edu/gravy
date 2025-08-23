@@ -95,7 +95,7 @@ public class AuthService {
     public ReissueAccessTokenDto.Response reissueAccessToken(final String requestedRefreshToken) {
         validateExpiredRefreshToken(requestedRefreshToken);
 
-        User user = refreshTokenMapper.getUserByRefreshToken(requestedRefreshToken)
+        User user = userMapper.getUserByRefreshToken(requestedRefreshToken)
                 .orElseThrow(() -> new GravyException(Status.USER_NOT_FOUND));
 
         final LocalDateTime now = LocalDateTime.now();
