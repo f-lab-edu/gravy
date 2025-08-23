@@ -9,6 +9,7 @@ import kr.gravy.gravy.auth.jwt.JWTUtil;
 import kr.gravy.gravy.auth.mapper.RefreshTokenMapper;
 import kr.gravy.gravy.auth.mapper.UserMapper;
 import kr.gravy.gravy.auth.model.Grade;
+import kr.gravy.gravy.auth.model.RefreshTokenStatus;
 import kr.gravy.gravy.common.exception.GravyException;
 import kr.gravy.gravy.common.exception.Status;
 import kr.gravy.gravy.common.utils.DateTimeUtil;
@@ -82,10 +83,12 @@ public class AuthService {
         RefreshToken newRefreshToken = RefreshToken.create(
                 user.getId(),
                 refreshToken,
+                RefreshTokenStatus.ACTIVE,
                 refreshTokenExpiredAt,
                 now,
                 now
         );
+        refreshTokenMapper.revokeActiveTokenByUserId(user.getId(), now);
         refreshTokenMapper.insertRefreshToken(newRefreshToken);
 
         return new UserLoginDto.Response(accessToken, refreshToken);
@@ -93,7 +96,7 @@ public class AuthService {
 
     @Transactional
     public ReissueAccessTokenDto.Response reissueAccessToken(final String requestedRefreshToken) {
-        validateExpiredRefreshToken(requestedRefreshToken);
+        validateRefreshToken(requestedRefreshToken);
 
         User user = userMapper.getUserByRefreshToken(requestedRefreshToken)
                 .orElseThrow(() -> new GravyException(Status.USER_NOT_FOUND));
@@ -107,21 +110,24 @@ public class AuthService {
         RefreshToken refreshTokenVO = RefreshToken.create(
                 user.getId(),
                 refreshToken,
+                RefreshTokenStatus.ACTIVE,
                 refreshTokenExpiredAt,
                 now,
                 now
         );
+        refreshTokenMapper.revokeActiveTokenByUserId(user.getId(), now);
         refreshTokenMapper.insertRefreshToken(refreshTokenVO);
 
         return new ReissueAccessTokenDto.Response(accessToken, refreshToken);
     }
 
-    private void validateExpiredRefreshToken(String requestedRefreshToken) {
-        LocalDateTime refreshTokenExpiredAt = refreshTokenMapper.getRefreshTokenExpiredAt(requestedRefreshToken)
-                .orElseThrow(() -> new GravyException(Status.TOKEN_NOT_FOUND));
+    private void validateRefreshToken(String requestedRefreshToken) {
+        RefreshToken refreshToken =
+                refreshTokenMapper.getRefreshTokenByStatus(requestedRefreshToken, RefreshTokenStatus.ACTIVE)
+                        .orElseThrow(() -> new GravyException(Status.TOKEN_NOT_FOUND));
 
         final LocalDateTime now = LocalDateTime.now();
-        if (refreshTokenExpiredAt.isBefore(now)) {
+        if (refreshToken.getExpiredAt().isBefore(now)) {
             throw new GravyException(Status.TOKEN_EXPIRED);
         }
     }
