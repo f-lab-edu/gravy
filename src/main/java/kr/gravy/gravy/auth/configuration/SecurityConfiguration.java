@@ -48,6 +48,14 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/", "/ping", "/error", "/favicon.ico").permitAll()
+                        // Swagger UI 및 에러 문서 접근 허용
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/error/**"
+                        ).permitAll()
+                        // 회원가입, 로그인 API 접근 허용
                         .requestMatchers(
                                 "/api/v1/email-verifications",
                                 "/api/v1/email-verifications/status",

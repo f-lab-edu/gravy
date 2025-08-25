@@ -25,6 +25,9 @@ repositories {
 
 dependencies {
 
+    // Swagger/OpenAPI 3 (Spring Boot 3.4.x 호환)
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.11'
+
     // Email Sender
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
