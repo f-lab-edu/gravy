@@ -42,7 +42,7 @@ public class AuthService {
 
     @Transactional
     public void signUp(final UserSignUpDto.Request request) {
-        EmailVerification emailVerification = emailVerificationMapper.getEmailAndVerificationStatusCode(request.verificationPublicId())
+        EmailVerification emailVerification = emailVerificationMapper.getEmailVerificationByPublicId(request.verificationPublicId())
                 .orElseThrow(() -> new GravyException(Status.BAD_REQUEST));
         validateEmailVerifiedStatus(emailVerification.getStatus());
         emailVerificationMapper.updateVerificationStatus(emailVerification.getId(), EmailVerificationStatus.CONSUMED);

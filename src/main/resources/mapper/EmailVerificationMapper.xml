@@ -23,7 +23,7 @@
         ORDER BY created_at DESC LIMIT 1
     </select>
 
-    <select id="getEmailAndVerificationStatusCode" resultMap="EmailVerificationMap">
+    <select id="getEmailVerificationByPublicId" resultMap="EmailVerificationMap">
         SELECT *
         FROM email_verification
         WHERE public_id = #{emailVerificationPublicId}

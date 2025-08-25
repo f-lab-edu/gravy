@@ -16,5 +16,5 @@ public interface EmailVerificationMapper {
     void updateVerificationStatus(@Param("emailVerificationId") Long emailVerificationId,
                                   @Param("emailVerificationStatus") EmailVerificationStatus emailVerificationStatus);
 
-    Optional<EmailVerification> getEmailAndVerificationStatusCode(@Param("emailVerificationPublicId") UUID emailVerificationPublicId);
+    Optional<EmailVerification> getEmailVerificationByPublicId(@Param("emailVerificationPublicId") UUID emailVerificationPublicId);
 }
