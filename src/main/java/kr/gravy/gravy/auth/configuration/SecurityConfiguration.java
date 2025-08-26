@@ -1,6 +1,7 @@
 package kr.gravy.gravy.auth.configuration;
 
 import kr.gravy.gravy.auth.jwt.JWTAuthenticationFilter;
+import kr.gravy.gravy.configuration.properties.CorsProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -34,6 +35,7 @@ import java.util.Map;
 public class SecurityConfiguration {
 
     private final JWTAuthenticationFilter jwtAuthenticationFilter;
+    private final CorsProperties corsProperties;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -76,12 +78,15 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() { // CORS 설정
         CorsConfiguration cors = new CorsConfiguration();
-        cors.setAllowedOrigins(List.of("https://gravy.kr"));
+
+        cors.setAllowedOrigins(corsProperties.allowedOrigins()); // 환경별 허용 도메인 설정
+        cors.setAllowCredentials(true); // 쿠키 전송 허용 (JWT 사용을 위해 필요)
         cors.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        cors.setAllowedHeaders(List.of("*"));
-        cors.setAllowCredentials(true);
+        cors.setAllowedHeaders(List.of("*")); // 클라이언트가 요청 때 보낼 수 있는 헤더 목록
+        cors.setExposedHeaders(List.of("Set-Cookie", "Location", "Content-Disposition"));
+        cors.setMaxAge(600L); // Preflight 요청 캐시 시간 (10분)
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", cors);

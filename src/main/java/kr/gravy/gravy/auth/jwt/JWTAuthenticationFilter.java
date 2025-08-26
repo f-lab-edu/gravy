@@ -5,10 +5,12 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import kr.gravy.gravy.auth.mapper.UserMapper;
+import kr.gravy.gravy.auth.model.Grade;
+import kr.gravy.gravy.auth.utils.CookieUtil;
 import kr.gravy.gravy.common.exception.GravyException;
 import kr.gravy.gravy.common.exception.Status;
-import kr.gravy.gravy.auth.model.Grade;
-import kr.gravy.gravy.auth.mapper.UserMapper;
+import kr.gravy.gravy.configuration.properties.ServerProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,6 +31,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
     private final UserMapper userMapper;
+    private final ServerProperties serverProperties;
 
 
     @Override
@@ -62,7 +65,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (Exception e) {
-            // 토큰 불일치/만료/위조 등: 인증 실패 → 인증 없음 상태로 진행한다.
+            log.error("JWT 인증 실패: {}", e.getMessage());
             SecurityContextHolder.clearContext();
         }
 
@@ -74,11 +77,32 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         if (cookies == null) {
             return null;
         }
+
         for (Cookie cookie : cookies) {
-            if ("access_token".equals(cookie.getName())) {
+            if (CookieUtil.ACCESS_COOKIE.equals(cookie.getName())) {
+                // 보안 속성 검증 - XSS 공격 방지
+                if (!isSecureCookie(cookie)) {
+                    log.warn("=== 보안되지 않은 쿠키 발견: {} ===", cookie.getValue());
+                    return null;
+                }
                 return cookie.getValue();
             }
         }
         return null;
     }
+
+    /**
+     * 쿠키의 보안 속성을 검증합니다.
+     * 환경에 따라 HttpOnly와 Secure 속성을 적절히 검증합니다.
+     */
+    private boolean isSecureCookie(Cookie cookie) {
+        // HttpOnly 속성 검증 - XSS 공격 방지
+        if (!cookie.isHttpOnly()) {
+            return false;
+        }
+
+        // SSL 활성화된 환경에서는 Secure 속성 필수
+        return !serverProperties.ssl().enabled() || cookie.getSecure();
+    }
+
 }
