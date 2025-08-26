@@ -1,18 +1,20 @@
-package kr.gravy.gravy.configuration;
+package kr.gravy.gravy.configuration.swagger;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
-import org.springframework.beans.factory.annotation.Value;
+import kr.gravy.gravy.configuration.properties.AppProperties;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
 @Configuration
-public class OpenApiConfiguration {
-    @Value("${app.base-url}")
-    private String baseUrl;
+@RequiredArgsConstructor
+public class SwaggerConfiguration {
+
+    private final AppProperties appProperties;
 
     @Bean
     public OpenAPI customOpenAPI() {
@@ -21,6 +23,6 @@ public class OpenApiConfiguration {
                         .title("Gravy API")
                         .version("1.0.0")
                         .description("Gravy 실시간 경매 API"))
-                .servers(List.of(new Server().url(baseUrl).description("Gravy server")));
+                .servers(List.of(new Server().url(appProperties.baseUrl()).description("Gravy server")));
     }
 }

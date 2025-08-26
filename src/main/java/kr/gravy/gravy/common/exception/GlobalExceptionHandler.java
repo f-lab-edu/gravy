@@ -2,8 +2,9 @@ package kr.gravy.gravy.common.exception;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
+import kr.gravy.gravy.configuration.properties.AppProperties;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -19,16 +20,16 @@ import static kr.gravy.gravy.common.exception.Status.*;
 
 @Slf4j
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
-    @Value("${app.base-url}")
-    private String baseUrl;
+    private final AppProperties appProperties;
 
     @PostConstruct
     void init() {
-        initFallbackUri(baseUrl);
+        initFallbackUri(appProperties.baseUrl());
         for (Status status : values()) {
-            status.initDocUri(baseUrl);
+            status.initDocUri(appProperties.baseUrl());
         }
     }
 

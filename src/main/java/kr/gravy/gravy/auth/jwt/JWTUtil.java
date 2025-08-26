@@ -3,7 +3,7 @@ package kr.gravy.gravy.auth.jwt;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
+import kr.gravy.gravy.configuration.properties.JwtProperties;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -21,8 +21,8 @@ public class JWTUtil {
     private final Duration ACCESS_TOKEN_EXPIRATION = Duration.ofMinutes(30);
     private final Duration REFRESH_TOKEN_EXPIRATION = Duration.ofDays(7);
 
-    public JWTUtil(@Value("${jwt.secret}") String secretB64) {
-        this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretB64));
+    public JWTUtil(JwtProperties jwtProperties) {
+        this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtProperties.secret()));
     }
 
     public String createAccessToken(UUID userPublicId) {
