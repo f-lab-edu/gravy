@@ -10,10 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,6 +49,19 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Set-Cookie", accessCookie.toString())
                 .header("Set-Cookie", refreshCookie.toString())
+                .build();
+    }
+
+    @DeleteMapping("/api/v1/auth/tokens")
+    public ResponseEntity<Void> userLogout(@CookieValue(name = CookieUtil.REFRESH_COOKIE) String refreshToken) {
+        authService.userLogout(refreshToken);
+
+        ResponseCookie deleteAccessCookie = cookieUtil.deleteCookieOfAccessToken();
+        ResponseCookie deleteRefreshCookie = cookieUtil.deleteCookieOfRefreshToken();
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Set-Cookie", deleteAccessCookie.toString())
+                .header("Set-Cookie", deleteRefreshCookie.toString())
                 .build();
     }
 }

@@ -131,4 +131,18 @@ public class AuthService {
             throw new GravyException(Status.TOKEN_EXPIRED);
         }
     }
+
+    @Transactional
+    public void userLogout(final String requestedRefreshToken) {
+        // refresh token 유효성 검증
+        validateRefreshToken(requestedRefreshToken);
+
+        // 해당 사용자의 모든 활성 refresh token 무효화
+        User user = userMapper.getUserByRefreshToken(requestedRefreshToken)
+                .orElseThrow(() -> new GravyException(Status.USER_NOT_FOUND));
+
+        // 모든 활성 Refresh Token 무효화 (REVOKED)
+        final LocalDateTime now = LocalDateTime.now();
+        refreshTokenMapper.revokeActiveTokenByUserId(user.getId(), now);
+    }
 }
