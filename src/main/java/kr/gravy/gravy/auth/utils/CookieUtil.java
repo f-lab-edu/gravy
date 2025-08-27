@@ -19,6 +19,10 @@ public class CookieUtil {
     private static final String REFRESH_TOKEN_REISSUE_PATH = "/";
     private static final String ACCESS_TOKEN_USABLE_PATH = "/";
 
+    // TODO:: 코드 원복하기!! 반드시 !!
+//    private static final String REFRESH_TOKEN_REISSUE_PATH = "/api/v1/auth/tokens";
+//    private static final String ACCESS_TOKEN_USABLE_PATH = "/api/v1";
+
     public ResponseCookie createAccessTokenCookie(String token) {
         return ResponseCookie.from(ACCESS_COOKIE, token)
                 .httpOnly(true)

@@ -84,7 +84,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         for (Cookie cookie : cookies) {
             System.out.println("Filter - cookieValue: >>>>>>>" + cookie.getValue() + "<<<<<<<<<");
             if (CookieUtil.ACCESS_COOKIE.equals(cookie.getName())) {
-                // 보안 속성 검증 - XSS 공격 방지
+                // TODO:: 보안 속성 검증 - XSS 공격 방지
                 if (!isSecureCookie(cookie)) {
                     log.warn("=== 보안되지 않은 쿠키 발견: {} ===", cookie.getValue());
                     return null;
@@ -106,12 +106,8 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             return false;
         }
 
-        // 2. 운영환경에서 Secure 속성 검증
-        // gravyProperties.security().cookie().secure()가 true인 경우 Secure 속성 필수
-        if (gravyProperties.security().cookie().secure() && !cookie.getSecure()) {
-            log.warn("Secure 속성이 없는 쿠키 발견: {}", cookie.getName());
-            return false;
-        }
+        // TODO:: HttpOnly & Secure 검증
+
 
         return true;
     }
