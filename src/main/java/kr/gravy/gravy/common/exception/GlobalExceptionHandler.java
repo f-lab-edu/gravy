@@ -2,7 +2,7 @@ package kr.gravy.gravy.common.exception;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
-import kr.gravy.gravy.configuration.properties.AppProperties;
+import kr.gravy.gravy.configuration.properties.GravyProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ProblemDetail;
@@ -23,13 +23,13 @@ import static kr.gravy.gravy.common.exception.Status.*;
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
-    private final AppProperties appProperties;
+    private final GravyProperties gravyProperties;
 
     @PostConstruct
     void init() {
-        initFallbackUri(appProperties.baseUrl());
+        initFallbackUri(gravyProperties.baseUrl());
         for (Status status : values()) {
-            status.initDocUri(appProperties.baseUrl());
+            status.initDocUri(gravyProperties.baseUrl());
         }
     }
 

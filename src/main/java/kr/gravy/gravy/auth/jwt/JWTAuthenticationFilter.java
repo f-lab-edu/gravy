@@ -10,7 +10,7 @@ import kr.gravy.gravy.auth.model.Grade;
 import kr.gravy.gravy.auth.utils.CookieUtil;
 import kr.gravy.gravy.common.exception.GravyException;
 import kr.gravy.gravy.common.exception.Status;
-import kr.gravy.gravy.configuration.properties.ServerProperties;
+import kr.gravy.gravy.configuration.properties.GravyProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,7 +31,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
     private final UserMapper userMapper;
-    private final ServerProperties serverProperties;
+    private final GravyProperties gravyProperties;
 
 
     @Override
@@ -96,13 +96,20 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
      * 환경에 따라 HttpOnly와 Secure 속성을 적절히 검증합니다.
      */
     private boolean isSecureCookie(Cookie cookie) {
-        // HttpOnly 속성 검증 - XSS 공격 방지
-        if (!cookie.isHttpOnly()) {
+        // 1. 쿠키 값 유효성 검증
+        if (cookie.getValue() == null || cookie.getValue().trim().isEmpty()) {
+            log.warn("빈 쿠키 값 발견: {}", cookie.getName());
             return false;
         }
 
-        // SSL 활성화된 환경에서는 Secure 속성 필수
-        return !serverProperties.ssl().enabled() || cookie.getSecure();
+        // 2. 운영환경에서 Secure 속성 검증
+        // gravyProperties.security().cookie().secure()가 true인 경우 Secure 속성 필수
+        if (gravyProperties.security().cookie().secure() && !cookie.getSecure()) {
+            log.warn("Secure 속성이 없는 쿠키 발견: {}", cookie.getName());
+            return false;
+        }
+
+        return true;
     }
 
 }
