@@ -64,4 +64,13 @@ public class AuthController {
                 .header("Set-Cookie", deleteRefreshCookie.toString())
                 .build();
     }
+
+    //TODO:: 사용자 정보 조회 및 로그인 여부 판별 API 만들기
+    // Q. 사용자 로그인 여부를 확인하기 위한 API를 만드는 것이 일반적인가 ?
+    // 흐름: 루트(/)페이지 접근 -> 로그인 여부 확인 -> 로그인된 사용자는 대시보드 버튼 보이게, or not: 로그인 버튼과 대시보드 버튼 -> 대시보드 버튼 누를 시 로그인 페이지로 이동
+    @PostMapping("/api/v1/auth/test")
+    public ResponseEntity<Void> checkAlreadyLogin() {
+        System.out.println("----check----");
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }

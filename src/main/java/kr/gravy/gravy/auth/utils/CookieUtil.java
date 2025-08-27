@@ -16,8 +16,8 @@ public class CookieUtil {
     public static final String ACCESS_COOKIE = "access_token";
     public static final String REFRESH_COOKIE = "refresh_token";
 
-    private static final String REFRESH_TOKEN_REISSUE_PATH = "/api/v1/auth/tokens";
-    private static final String ACCESS_TOKEN_USABLE_PATH = "/api/v1";
+    private static final String REFRESH_TOKEN_REISSUE_PATH = "/";
+    private static final String ACCESS_TOKEN_USABLE_PATH = "/";
 
     public ResponseCookie createAccessTokenCookie(String token) {
         return ResponseCookie.from(ACCESS_COOKIE, token)

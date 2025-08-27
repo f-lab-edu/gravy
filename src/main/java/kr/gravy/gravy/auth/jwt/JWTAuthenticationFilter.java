@@ -73,12 +73,16 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String extractAccessTokenFromCookie(HttpServletRequest request) {
+        System.out.println("-------------------------------------");
+        System.out.println("Filter: " + request.getRequestURI());
+        System.out.println("-------------------------------------");
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
             return null;
         }
 
         for (Cookie cookie : cookies) {
+            System.out.println("Filter - cookieValue: >>>>>>>" + cookie.getValue() + "<<<<<<<<<");
             if (CookieUtil.ACCESS_COOKIE.equals(cookie.getName())) {
                 // 보안 속성 검증 - XSS 공격 방지
                 if (!isSecureCookie(cookie)) {
