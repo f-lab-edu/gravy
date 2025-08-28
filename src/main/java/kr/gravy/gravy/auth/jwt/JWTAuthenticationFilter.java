@@ -10,7 +10,6 @@ import kr.gravy.gravy.auth.model.Grade;
 import kr.gravy.gravy.auth.utils.CookieUtil;
 import kr.gravy.gravy.common.exception.GravyException;
 import kr.gravy.gravy.common.exception.Status;
-import kr.gravy.gravy.configuration.properties.GravyProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,7 +30,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
     private final UserMapper userMapper;
-    private final GravyProperties gravyProperties;
 
 
     @Override
@@ -73,16 +71,12 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String extractAccessTokenFromCookie(HttpServletRequest request) {
-        System.out.println("-------------------------------------");
-        System.out.println("Filter: " + request.getRequestURI());
-        System.out.println("-------------------------------------");
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
             return null;
         }
 
         for (Cookie cookie : cookies) {
-            System.out.println("Filter - cookieValue: >>>>>>>" + cookie.getValue() + "<<<<<<<<<");
             if (CookieUtil.ACCESS_COOKIE.equals(cookie.getName())) {
                 // TODO:: 보안 속성 검증 - XSS 공격 방지
                 if (!isSecureCookie(cookie)) {
