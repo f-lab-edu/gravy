@@ -33,8 +33,10 @@ public class AuthController {
         ResponseCookie refreshCookie = cookieUtil.createRefreshTokenCookie(loginResponse.refreshToken());
 
         return ResponseEntity.status(HttpStatus.OK)
-                .header("Set-Cookie", accessCookie.toString())
-                .header("Set-Cookie", refreshCookie.toString())
+                .headers(httpHeaders -> {
+                    httpHeaders.add("Set-Cookie", accessCookie.toString());
+                    httpHeaders.add("Set-Cookie", refreshCookie.toString());
+                })
                 .build();
     }
 
@@ -47,8 +49,10 @@ public class AuthController {
         ResponseCookie refreshCookie = cookieUtil.createRefreshTokenCookie(reissueResponse.refreshToken());
 
         return ResponseEntity.status(HttpStatus.OK)
-                .header("Set-Cookie", accessCookie.toString())
-                .header("Set-Cookie", refreshCookie.toString())
+                .headers(httpHeaders -> {
+                    httpHeaders.add("Set-Cookie", accessCookie.toString());
+                    httpHeaders.add("Set-Cookie", refreshCookie.toString());
+                })
                 .build();
     }
 
@@ -60,8 +64,10 @@ public class AuthController {
         ResponseCookie deleteRefreshCookie = cookieUtil.deleteCookieOfRefreshToken();
 
         return ResponseEntity.status(HttpStatus.OK)
-                .header("Set-Cookie", deleteAccessCookie.toString())
-                .header("Set-Cookie", deleteRefreshCookie.toString())
+                .headers(httpHeaders -> {
+                    httpHeaders.add("Set-Cookie", deleteAccessCookie.toString());
+                    httpHeaders.add("Set-Cookie", deleteRefreshCookie.toString());
+                })
                 .build();
     }
 
