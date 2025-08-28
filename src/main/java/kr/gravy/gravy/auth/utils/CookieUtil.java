@@ -25,7 +25,7 @@ public class CookieUtil {
 
     public ResponseCookie createAccessTokenCookie(String token) {
         return ResponseCookie.from(ACCESS_COOKIE, token)
-                .httpOnly(true)
+                .httpOnly(false)
                 .secure(gravyProperties.security().cookie().secure())
                 .sameSite(SameSite.LAX.attributeValue())
                 .path(ACCESS_TOKEN_USABLE_PATH)
@@ -34,7 +34,7 @@ public class CookieUtil {
 
     public ResponseCookie createRefreshTokenCookie(String token) {
         return ResponseCookie.from(REFRESH_COOKIE, token)
-                .httpOnly(true)
+                .httpOnly(false)
                 .secure(gravyProperties.security().cookie().secure())
                 .sameSite(SameSite.STRICT.attributeValue())
                 .path(REFRESH_TOKEN_REISSUE_PATH)
