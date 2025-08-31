@@ -7,11 +7,13 @@ import kr.gravy.gravy.auth.dto.UserSignUpDto;
 import kr.gravy.gravy.auth.service.AuthService;
 import kr.gravy.gravy.auth.utils.CookieUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
@@ -76,7 +78,7 @@ public class AuthController {
     // 흐름: 루트(/)페이지 접근 -> 로그인 여부 확인 -> 로그인된 사용자는 대시보드 버튼 보이게, or not: 로그인 버튼과 대시보드 버튼 -> 대시보드 버튼 누를 시 로그인 페이지로 이동
     @PostMapping("/api/v1/auth/test")
     public ResponseEntity<Void> checkAlreadyLogin() {
-        System.out.println("----check----");
+        log.info("-------check-------");
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
