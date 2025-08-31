@@ -38,3 +38,4 @@ out/
 
 ### Local Configuration
 application-local.yml
+application-dev.yml

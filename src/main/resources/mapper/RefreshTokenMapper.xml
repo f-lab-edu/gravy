@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.gravy.gravy.auth.mapper.RefreshTokenMapper">
+
+    <resultMap id="RefreshTokenMap" type="kr.gravy.gravy.auth.entity.RefreshToken">
+        <id property="id" column="id" javaType="java.lang.Long"/>
+        <result property="userId" column="user_id" javaType="java.lang.Long"/>
+        <result property="token" column="token" javaType="java.lang.String"/>
+        <result property="status" column="status" javaType="kr.gravy.gravy.auth.model.RefreshTokenStatus"/>
+        <result property="expiredAt" column="expired_at" javaType="java.time.LocalDateTime"/>
+        <result property="createdAt" column="created_at" javaType="java.time.LocalDateTime"/>
+        <result property="updatedAt" column="updated_at" javaType="java.time.LocalDateTime"/>
+    </resultMap>
+
+    <select id="getRefreshTokenByStatus" resultMap="RefreshTokenMap">
+        SELECT *
+        FROM refresh_token
+        WHERE status = #{refreshTokenStatus}
+          AND token = #{refreshToken}
+    </select>
+
+    <insert id="insertRefreshToken">
+        INSERT INTO refresh_token(user_id, token, status, expired_at, created_at, updated_at)
+        VALUES (#{userId}, #{token}, #{status}, #{expiredAt}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <update id="revokeActiveTokenByUserId">
+        UPDATE refresh_token
+        SET status     = 'REVOKED',
+            updated_at = #{updatedAt}
+        WHERE user_id = #{userId}
+          AND status = 'ACTIVE'
+    </update>
+
+</mapper>

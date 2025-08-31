@@ -3,3 +3,11 @@ spring:
     name: gravy
   profiles:
     active: local
+
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  configuration:
+    jdbc-type-for-null: null # 자바의 null과 db의 null을 동일시한다.
+    map-underscore-to-camel-case: true # snakeCase = CamelCase
+    call-setters-on-nulls: true # DB에 null 값이 있는 경우에도 값을 null로 받을 수 있다
+  type-handlers-package: kr.gravy.gravy.infrastructure.persistence.mybatis

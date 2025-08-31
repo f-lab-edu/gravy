@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.gravy.gravy.auth.mapper.UserMapper">
+
+    <resultMap id="UserMap" type="kr.gravy.gravy.auth.entity.User">
+        <id property="id" column="id" javaType="java.lang.Long"/>
+        <result property="publicId" column="public_id" javaType="java.util.UUID"
+                typeHandler="kr.gravy.gravy.infrastructure.persistence.mybatis.UUIDTypeHandler"/>
+        <result property="nickname" column="nickname" javaType="java.lang.String"/>
+        <result property="email" column="email" javaType="java.lang.String"/>
+        <result property="password" column="password" javaType="java.lang.String"/>
+        <result property="grade" column="grade" javaType="kr.gravy.gravy.auth.model.Grade"/>
+        <result property="createdAt" column="created_at" javaType="java.time.LocalDateTime"/>
+    </resultMap>
+
+    <select id="getUserByEmail" resultMap="UserMap">
+        SELECT *
+        FROM gravy_user
+        WHERE email = #{email}
+    </select>
+
+    <select id="existsAlreadyEmail" resultType="boolean">
+        SELECT EXISTS (SELECT 1
+                       FROM gravy_user
+                       WHERE email = #{email})
+    </select>
+
+    <select id="getUserGradeByPublicId" resultType="kr.gravy.gravy.auth.model.Grade">
+        SELECT grade
+        FROM gravy_user
+        WHERE public_id = #{publicId}
+    </select>
+
+    <select id="getUserByRefreshToken" resultMap="UserMap">
+        SELECT u.*
+        FROM refresh_token AS r
+                 JOIN gravy_user AS u ON u.id = r.user_id
+        WHERE r.token = #{refreshToken}
+    </select>
+
+    <insert id="userSignUp">
+        INSERT INTO gravy_user(public_id, nickname, email, password, grade, created_at)
+        VALUES (#{publicId}, #{nickname}, #{email}, #{password}, #{grade}, #{createdAt})
+    </insert>
+</mapper>

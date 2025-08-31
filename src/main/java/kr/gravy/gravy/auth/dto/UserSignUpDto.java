@@ -1,0 +1,17 @@
+package kr.gravy.gravy.auth.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+
+import java.util.UUID;
+
+@Getter
+public class UserSignUpDto {
+
+    public record Request(@NotBlank(message = "닉네임은 필수값입니다.") String nickname,
+                          @NotBlank(message = "비밀번호는 필수입니다.") String password,
+                          @NotNull UUID verificationPublicId
+    ) {
+    }
+}
