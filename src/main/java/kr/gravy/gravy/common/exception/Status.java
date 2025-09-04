@@ -31,6 +31,10 @@ public enum Status {
     // === 사용자 관련 ===
     USER_NOT_FOUND(404, "user001", "사용자를 찾을 수 없습니다"),
 
+    // === 경매 관련 ===
+    AUCTION_NOT_FOUND(404, "auction001", "경매를 찾을 수 없습니다"),
+    INVALID_AUCTION_TIME(400, "auction002", "경매 시작/종료 시간이 유효하지 않습니다"),
+
     // === 검증 관련 ===
     VALIDATION_FAILED(400, "valid001", "입력값 검증에 실패했습니다"),
 

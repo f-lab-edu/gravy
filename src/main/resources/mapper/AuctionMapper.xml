@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.gravy.gravy.auction.mapper.AuctionMapper">
+
+    <resultMap id="AuctionMap" type="kr.gravy.gravy.auction.entity.Auction">
+        <id property="id" column="id" javaType="java.lang.Long"/>
+        <result property="publicId" column="public_id" javaType="java.util.UUID"
+                typeHandler="kr.gravy.gravy.infrastructure.persistence.mybatis.UUIDTypeHandler"/>
+        <result property="sellerPublicId" column="seller_id" javaType="java.lang.Long"/>
+        <result property="title" column="title" javaType="java.lang.String"/>
+        <result property="description" column="description" javaType="java.lang.String"/>
+        <result property="category" column="category" javaType="java.lang.String"/>
+        <result property="startingPrice" column="starting_price" javaType="java.math.BigDecimal"/>
+        <result property="currentPrice" column="current_price" javaType="java.math.BigDecimal"/>
+        <result property="buyNowPrice" column="buy_now_price" javaType="java.math.BigDecimal"/>
+        <result property="status" column="status" javaType="kr.gravy.gravy.auction.model.AuctionStatus"/>
+        <result property="auctionStartAt" column="auction_start_at" javaType="java.time.LocalDateTime"/>
+        <result property="auctionEndAt" column="auction_end_at" javaType="java.time.LocalDateTime"/>
+        <result property="createdAt" column="created_at" javaType="java.time.LocalDateTime"/>
+        <result property="updatedAt" column="updated_at" javaType="java.time.LocalDateTime"/>
+    </resultMap>
+
+    <resultMap id="AuctionSummaryMap" type="kr.gravy.gravy.auction.dto.AuctionListDto$AuctionSummary">
+        <constructor>
+            <arg column="public_id" javaType="java.util.UUID" 
+                 typeHandler="kr.gravy.gravy.infrastructure.persistence.mybatis.UUIDTypeHandler"/>
+            <arg column="title" javaType="java.lang.String"/>
+            <arg column="category" javaType="java.lang.String"/>
+            <arg column="current_price" javaType="java.math.BigDecimal"/>
+            <arg column="buy_now_price" javaType="java.math.BigDecimal"/>
+            <arg column="status" javaType="kr.gravy.gravy.auction.model.AuctionStatus"/>
+            <arg column="auction_end_at" javaType="java.time.LocalDateTime"/>
+            <arg column="seller_nickname" javaType="java.lang.String"/>
+        </constructor>
+    </resultMap>
+
+    <insert id="insertAuction">
+        INSERT INTO auction(public_id, seller_public_id, title, description, category, 
+                           starting_price, current_price, buy_now_price, status, 
+                           auction_start_at, auction_end_at, created_at, updated_at)
+        VALUES (#{publicId}, #{sellerPublicId}, #{title}, #{description}, #{category},
+                #{startingPrice}, #{currentPrice}, #{buyNowPrice}, #{status},
+                #{auctionStartAt}, #{auctionEndAt}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <select id="getAuctionByPublicId" resultMap="AuctionMap">
+        SELECT *
+        FROM auction
+        WHERE public_id = #{publicId}
+    </select>
+
+    <select id="getAuctionDetailByPublicId" resultType="kr.gravy.gravy.auction.dto.AuctionDetailDto$Response">
+        SELECT a.public_id as publicId,
+               a.title,
+               a.description,
+               a.category,
+               a.starting_price as startingPrice,
+               a.current_price as currentPrice,
+               a.buy_now_price as buyNowPrice,
+               a.status,
+               a.auction_start_at as auctionStartAt,
+               a.auction_end_at as auctionEndAt,
+               a.created_at as createdAt,
+               u.nickname as sellerNickname
+        FROM auction a
+        JOIN gravy_user u ON a.seller_id = u.id
+        WHERE a.public_id = #{publicId}
+    </select>
+
+    <select id="getAuctionList" resultMap="AuctionSummaryMap">
+        SELECT a.public_id,
+               a.title,
+               a.category,
+               a.current_price,
+               a.buy_now_price,
+               a.status,
+               a.auction_end_at,
+               u.nickname as seller_nickname
+        FROM auction a
+        JOIN gravy_user u ON a.seller_id = u.id
+        <where>
+            <if test="category != null and category != ''">
+                AND a.category = #{category}
+            </if>
+            <if test="status != null">
+                AND a.status = #{status}
+            </if>
+            <if test="searchKeyword != null and searchKeyword != ''">
+                AND (a.title LIKE CONCAT('%', #{searchKeyword}, '%') 
+                     OR a.description LIKE CONCAT('%', #{searchKeyword}, '%'))
+            </if>
+        </where>
+        ORDER BY a.created_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countAuctions" resultType="long">
+        SELECT COUNT(*)
+        FROM auction a
+        JOIN gravy_user u ON a.seller_id = u.id
+        <where>
+            <if test="category != null and category != ''">
+                AND a.category = #{category}
+            </if>
+            <if test="status != null">
+                AND a.status = #{status}
+            </if>
+            <if test="searchKeyword != null and searchKeyword != ''">
+                AND (a.title LIKE CONCAT('%', #{searchKeyword}, '%') 
+                     OR a.description LIKE CONCAT('%', #{searchKeyword}, '%'))
+            </if>
+        </where>
+    </select>
+
+</mapper>
