@@ -32,7 +32,11 @@ public enum Status {
     USER_NOT_FOUND(404, "user001", "사용자를 찾을 수 없습니다"),
 
     // === 검증 관련 ===
-    VALIDATION_FAILED(400, "valid001", "입력값 검증에 실패했습니다");
+    VALIDATION_FAILED(400, "valid001", "입력값 검증에 실패했습니다"),
+
+    // === 외부 서버 통신 관련 ===
+    EXTERNAL_SERVER_ERROR(502, "external001", "외부 서버 통신에 실패했습니다"),
+    INTERNAL_SERVER_ERROR(500, "server001", "서버 내부 오류가 발생했습니다");
 
 
     private final int httpStatusCode;

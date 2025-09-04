@@ -31,6 +31,9 @@ dependencies {
     // Email Sender
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
+    // WebClient
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
     // ModelMapper
     implementation 'org.modelmapper:modelmapper:3.2.3'
 
